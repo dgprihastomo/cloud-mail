@@ -16,6 +16,22 @@ export async function email(message, env, ctx) {
 
 	try {
 
+		// --- [ELEGANT DYNAMIC FORWARDING MULAI DI SINI] ---
+		if (env.FORWARD_MAPPING) {
+			try {
+				const rules = JSON.parse(env.FORWARD_MAPPING);
+				const targetForward = rules[message.to];
+				
+				if (targetForward) {
+					await message.forward(targetForward);
+					console.log(`[Dynamic Rule] Berhasil forward ${message.to} ke ${targetForward}`);
+				}
+			} catch (parseErr) {
+				console.error("Format FORWARD_MAPPING di Environment Variables salah (harus JSON valid):", parseErr);
+			}
+		}
+		// --- [ELEGANT DYNAMIC FORWARDING SELESAI] ---
+
 		const {
 			receive,
 			tgChatId,
